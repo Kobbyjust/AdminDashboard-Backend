@@ -2,11 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const properties = require('./propertiesData');
-const users = require('./users');
-const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
-const session = require('express-session');
-const bcrypt = require('bcrypt');
 const path = require('path');
 const fs = require('fs');
 
@@ -17,34 +12,9 @@ const PORT = process.env.PORT || 4000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
-app.use(session({ secret: process.env.SESSION_SECRET || 'secret', resave: false, saveUninitialized: false }));
-app.use(passport.initialize());
-app.use(passport.session());
 
 // Serve static files from the 'frontend' directory
 app.use(express.static(path.join(__dirname, '..', 'frontend')));
-
-// Configure passport
-passport.use(new LocalStrategy(
-    (username, password, done) => {
-        const user = users.find(u => u.username === username);
-        if (!user) return done(null, false, { message: 'Incorrect username' });
-        bcrypt.compare(password, user.password, (err, result) => {
-            if (err) return done(err);
-            if (!result) return done(null, false, { message: 'Incorrect password' });
-            return done(null, user);
-        });
-    }
-));
-
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-});
-
-passport.deserializeUser((id, done) => {
-    const user = users.find(u => u.id === id);
-    done(null, user);
-});
 
 // Routes
 app.get('/', (req, res) => {
@@ -55,26 +25,17 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'frontend', 'login.html'));
 });
 
-app.post('/login', passport.authenticate('local', { failureRedirect: '/login' }), (req, res) => {
+app.post('/login', (req, res) => {
     res.redirect('/index.html');
 });
 
-app.get('/profile', isAuthenticated, (req, res) => {
-    res.send(`Welcome ${req.user.name}`);
+app.get('/profile', (req, res) => {
+    res.send('Welcome to the profile page');
 });
 
 app.get('/logout', (req, res) => {
-    req.logout();
     res.redirect('/');
 });
-
-// Authentication middleware
-function isAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    res.redirect('/login');
-}
 
 // Routes for property management
 app.get('/properties', (req, res) => {
@@ -121,12 +82,11 @@ app.delete('/properties/:id', (req, res) => {
 });
 
 // Serve index.html as dashboard
-app.get('/login', isAuthenticated, (req, res) => {
+app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
 });
 
-
-app.get('/property-details.html', isAuthenticated, (req, res) => {
+app.get('/property-details.html', (req, res) => {
     // Read the contents of the HTML file
     fs.readFile(path.join(__dirname, '..', 'frontend', 'property-details.html'), 'utf8', (err, data) => {
         if (err) {
@@ -139,7 +99,6 @@ app.get('/property-details.html', isAuthenticated, (req, res) => {
         }
     });
 });
-
 
 // Start the server
 app.listen(PORT, () => {
