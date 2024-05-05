@@ -121,7 +121,7 @@ app.delete('/properties/:id', (req, res) => {
 });
 
 // Serve index.html as dashboard
-app.get('/dashboard', isAuthenticated, (req, res) => {
+app.get('/login', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
 });
 
