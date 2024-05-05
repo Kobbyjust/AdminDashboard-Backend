@@ -8,6 +8,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const bcrypt = require('bcrypt');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -123,6 +124,22 @@ app.delete('/properties/:id', (req, res) => {
 app.get('/dashboard', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
 });
+
+
+app.get('/property-details.html', isAuthenticated, (req, res) => {
+    // Read the contents of the HTML file
+    fs.readFile(path.join(__dirname, '..', 'frontend', 'property-details.html'), 'utf8', (err, data) => {
+        if (err) {
+            // If there's an error reading the file, send a 500 error response
+            console.error('Error reading file:', err);
+            res.status(500).send('Internal Server Error');
+        } else {
+            // If the file is successfully read, send its contents as the response
+            res.send(data);
+        }
+    });
+});
+
 
 // Start the server
 app.listen(PORT, () => {
