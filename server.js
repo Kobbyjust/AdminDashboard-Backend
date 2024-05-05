@@ -86,19 +86,19 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
 });
 
-app.get('/property-details.html', (req, res) => {
-    // Read the contents of the HTML file
-    fs.readFile(path.join(__dirname, '..', 'frontend', 'property-details.html'), 'utf8', (err, data) => {
-        if (err) {
-            // If there's an error reading the file, send a 500 error response
-            console.error('Error reading file:', err);
-            res.status(500).send('Internal Server Error');
-        } else {
-            // If the file is successfully read, send its contents as the response
-            res.send(data);
-        }
-    });
-});
+// app.get('/property-details.html', (req, res) => {
+//     // Read the contents of the HTML file
+//     fs.readFile(path.join(__dirname, '..', 'frontend', 'property-details.html'), 'utf8', (err, data) => {
+//         if (err) {
+//             // If there's an error reading the file, send a 500 error response
+//             console.error('Error reading file:', err);
+//             res.status(500).send('Internal Server Error');
+//         } else {
+//             // If the file is successfully read, send its contents as the response
+//             res.send(data);
+//         }
+//     });
+// });
 
 // Start the server
 app.listen(PORT, () => {
